@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="card" data-testid="login-card">
+  <span class="step-badge">{{ L.step_indicator.replace("{step}", "0").replace("{total}", "3") }}</span>
+  <h1 data-testid="login-heading">{{ L.login_heading }}</h1>
+  <p class="sub">{{ L.welcome_back }}</p>
+
+  {% if error_login %}
+    <div class="error-banner" role="alert" data-testid="login-error-banner">{{ L.error_login }}</div>
+  {% endif %}
+
+  <form method="post" action="/{{ lang }}/login" data-testid="login-form">
+    <div class="field">
+      <label for="email">{{ L.email }}</label>
+      <input id="email" name="email" type="email" autocomplete="username" required
+             data-testid="login-email"
+             {% if email_value is defined %}value="{{ email_value }}"{% endif %} />
+    </div>
+    <div class="field">
+      <label for="password">{{ L.password }}</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required data-testid="login-password" />
+    </div>
+    <div class="actions">
+      <button type="submit" class="button primary" data-testid="login-submit">{{ L.sign_in }}</button>
+    </div>
+  </form>
+</article>
+{% endblock %}

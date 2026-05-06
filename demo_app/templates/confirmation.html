@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="card" data-testid="confirmation-card">
+  <div class="success-banner" role="status" data-testid="confirmation-status">
+    {{ L.confirmation_body }} <strong data-testid="confirmation-reference">{{ reference }}</strong>
+  </div>
+  <h1 data-testid="confirmation-heading">{{ L.confirmation_title }}</h1>
+  <p class="sub" data-testid="confirmation-summary-line">
+    {{ flight.airline_code }} {{ flight.flight_number }} · {{ passenger.first_name }} {{ passenger.last_name }}
+  </p>
+  <div class="actions">
+    <a class="button primary" data-testid="confirmation-new-claim" href="/{{ lang }}/claim/step1">{{ L.claim_heading }}</a>
+  </div>
+</article>
+{% endblock %}

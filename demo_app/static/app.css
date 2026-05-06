@@ -1,0 +1,144 @@
+:root {
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: #162030;
+  background: #f4f7fb;
+  line-height: 1.45;
+}
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+.shell {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+}
+header.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.brand {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.lang-switch a {
+  color: #1a56db;
+}
+.card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.75rem 1.75rem 2rem;
+  box-shadow: 0 12px 30px rgb(22 64 133 / 0.08), 0 1px 0 rgb(0 0 0 / 0.04);
+}
+.field {
+  margin-bottom: 1.1rem;
+}
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+.field input,
+.field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid #cdd6ea;
+  border-radius: 6px;
+}
+.field.has-error input,
+.field.has-error select {
+  border-color: #c0392b;
+}
+.error-banner {
+  background: #fdecea;
+  color: #962d23;
+  padding: 0.65rem 0.85rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+.error-text {
+  color: #c0392b;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+.step-badge {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #3d5a94;
+  background: #e9f1ff;
+  padding: 0.3rem 0.65rem;
+  border-radius: 999px;
+  margin-bottom: 0.85rem;
+}
+.actions {
+  display: flex;
+  gap: 0.65rem;
+  margin-top: 1.35rem;
+  flex-wrap: wrap;
+}
+.button {
+  display: inline-block;
+  appearance: none;
+  border: none;
+  border-radius: 8px;
+  padding: 0.58rem 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+.button.primary {
+  background: #194bb5;
+  color: #fff;
+}
+.button.secondary {
+  background: #e7ecf8;
+  color: #1b2f55;
+}
+h1 {
+  font-size: 1.55rem;
+  margin: 0 0 0.25rem;
+}
+.sub {
+  margin: 0 0 1rem;
+  color: #4b5f7a;
+}
+.review-grid {
+  display: grid;
+  gap: 0.75rem;
+  font-size: 0.95rem;
+}
+.review-grid dl {
+  margin: 0;
+  padding: 0.75rem 0.95rem;
+  background: #f7f9fe;
+  border-radius: 8px;
+}
+.review-grid dt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7790;
+}
+.review-grid dd {
+  margin: 0.2rem 0 0;
+  font-weight: 600;
+}
+.success-banner {
+  background: #e7f8ef;
+  color: #1e6b43;
+  padding: 0.85rem 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}

@@ -1,0 +1,16 @@
+__pycache__/
+.pytest_cache/
+.venv/
+*.pyc
+.python-version
+
+# Allure raw output (regenerate locally)
+reports/allure/**
+!reports/allure/.gitkeep
+
+# Playwright
+playwright-report/
+test-results/
+
+# Cursor / local terminal transcripts (never commit)
+terminals/

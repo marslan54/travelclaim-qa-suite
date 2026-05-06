@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="card" data-testid="claim-wizard-card">
+  <span class="step-badge" data-testid="step-indicator">{{ L.step_indicator.replace("{step}", step|string).replace("{total}", total_steps|string) }}</span>
+  <h1 data-testid="claim-heading">{{ L.claim_heading }}</h1>
+  <p class="sub">{{ L.step1_section }}</p>
+
+  <form method="post" action="/{{ lang }}/claim/step1" data-testid="claim-step1-form" novalidate>
+    {% set errs = field_errors if field_errors is defined else {} %}
+    <div class="field{% if errs.get('airline_code') %} has-error{% endif %}">
+      <label for="airline_code">{{ L.airline }}</label>
+      <input id="airline_code" name="airline_code" data-testid="field-airline-code"
+             maxlength="4" autocomplete="organization" value="{{ flight.get('airline_code','') }}" />
+      {% if errs.get('airline_code') %}<div class="error-text" data-testid="field-error-airline">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field{% if errs.get('flight_number') %} has-error{% endif %}">
+      <label for="flight_number">{{ L.flight_no }}</label>
+      <input id="flight_number" name="flight_number" data-testid="field-flight-number"
+             maxlength="16" autocomplete="off" value="{{ flight.get('flight_number','') }}" />
+      {% if errs.get('flight_number') %}<div class="error-text" data-testid="field-error-flight">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field{% if errs.get('departure_airport') %} has-error{% endif %}">
+      <label for="departure_airport">{{ L.dep }}</label>
+      <input id="departure_airport" name="departure_airport" data-testid="field-departure-airport"
+             maxlength="5" autocomplete="off" value="{{ flight.get('departure_airport','') }}" />
+      {% if errs.get('departure_airport') %}<div class="error-text" data-testid="field-error-dep">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field{% if errs.get('arrival_airport') %} has-error{% endif %}">
+      <label for="arrival_airport">{{ L.arr }}</label>
+      <input id="arrival_airport" name="arrival_airport" data-testid="field-arrival-airport"
+             maxlength="5" autocomplete="off" value="{{ flight.get('arrival_airport','') }}" />
+      {% if errs.get('arrival_airport') %}<div class="error-text" data-testid="field-error-arr">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field{% if errs.get('travel_date') %} has-error{% endif %}">
+      <label for="travel_date">{{ L.travel_date }}</label>
+      <input id="travel_date" name="travel_date" type="date" data-testid="field-travel-date"
+             max="2030-12-31" value="{{ flight.get('travel_date','') }}" />
+      {% if errs.get('travel_date') %}<div class="error-text" data-testid="field-error-date">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field">
+      <label for="booking_reference">{{ L.booking_ref }}</label>
+      <input id="booking_reference" name="booking_reference" data-testid="field-booking-ref"
+             maxlength="64" value="{{ flight.get('booking_reference','') }}" />
+    </div>
+    <div class="actions">
+      <button type="submit" class="button primary" data-testid="claim-step1-next">{{ L.next }}</button>
+    </div>
+  </form>
+</article>
+{% endblock %}

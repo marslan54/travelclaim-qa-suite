@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="card" data-testid="claim-wizard-card">
+  <span class="step-badge" data-testid="step-indicator">{{ L.step_indicator.replace("{step}", step|string).replace("{total}", total_steps|string) }}</span>
+  <h1 data-testid="claim-heading">{{ L.claim_heading }}</h1>
+  <p class="sub">{{ L.step2_section }}</p>
+
+  <form method="post" action="/{{ lang }}/claim/step2" data-testid="claim-step2-form" novalidate>
+    {% set errs = field_errors if field_errors is defined else {} %}
+    <div class="field{% if errs.get('first_name') %} has-error{% endif %}">
+      <label for="first_name">{{ L.first_name }}</label>
+      <input id="first_name" name="first_name" data-testid="field-first-name"
+             maxlength="120" autocomplete="given-name" value="{{ passenger.get('first_name','') }}" />
+      {% if errs.get('first_name') %}<div class="error-text" data-testid="field-error-first">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field{% if errs.get('last_name') %} has-error{% endif %}">
+      <label for="last_name">{{ L.last_name }}</label>
+      <input id="last_name" name="last_name" data-testid="field-last-name"
+             maxlength="120" autocomplete="family-name" value="{{ passenger.get('last_name','') }}" />
+      {% if errs.get('last_name') %}<div class="error-text" data-testid="field-error-last">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field{% if errs.get('contact_email') %} has-error{% endif %}">
+      <label for="contact_email">{{ L.contact_email }}</label>
+      <input id="contact_email" name="contact_email" type="email" data-testid="field-contact-email"
+             autocomplete="email" value="{{ passenger.get('contact_email','') }}" />
+      {% if errs.get('contact_email') %}<div class="error-text" data-testid="field-error-email">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="field{% if errs.get('claim_reason_code') %} has-error{% endif %}">
+      <label for="claim_reason_code">{{ L.reason }}</label>
+      <select id="claim_reason_code" name="claim_reason_code" data-testid="field-reason-code">
+        <option value="" {% if not passenger.get('claim_reason_code','') %}selected{% endif %}>—</option>
+        <option value="DELAY_GT3_261" {% if passenger.get('claim_reason_code','')=='DELAY_GT3_261' %}selected{% endif %}>DELAY_GT3_261</option>
+        <option value="CANCELLED_261" {% if passenger.get('claim_reason_code','')=='CANCELLED_261' %}selected{% endif %}>CANCELLED_261</option>
+        <option value="DENIED_BOARD_261" {% if passenger.get('claim_reason_code','')=='DENIED_BOARD_261' %}selected{% endif %}>DENIED_BOARD_261</option>
+      </select>
+      {% if errs.get('claim_reason_code') %}<div class="error-text" data-testid="field-error-reason">{{ L.error_required }}</div>{% endif %}
+    </div>
+    <div class="actions">
+      <a class="button secondary" data-testid="claim-step2-back" href="/{{ lang }}/claim/step1">{{ L.back }}</a>
+      <button type="submit" class="button primary" data-testid="claim-step2-next">{{ L.next }}</button>
+    </div>
+  </form>
+</article>
+{% endblock %}

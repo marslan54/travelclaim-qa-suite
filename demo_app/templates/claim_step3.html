@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="card" data-testid="claim-wizard-card">
+  <span class="step-badge" data-testid="step-indicator">{{ L.step_indicator.replace("{step}", step|string).replace("{total}", total_steps|string) }}</span>
+  <h1 data-testid="claim-heading">{{ L.claim_heading }}</h1>
+  <p class="sub">{{ L.review_section }}</p>
+
+  <div class="review-grid" data-testid="claim-review-block">
+    <dl data-testid="review-flight">
+      <dt>{{ L.summary_flight }}</dt>
+      <dd data-testid="review-airline">{{ flight.airline_code }} {{ flight.flight_number }}</dd>
+      <dd data-testid="review-route">{{ flight.departure_airport }} → {{ flight.arrival_airport }}</dd>
+      <dd data-testid="review-date">{{ flight.travel_date }}</dd>
+      {% if flight.booking_reference %}
+        <dd data-testid="review-pnr">{{ flight.booking_reference }}</dd>
+      {% endif %}
+    </dl>
+    <dl data-testid="review-passenger">
+      <dt>{{ L.summary_passenger }}</dt>
+      <dd data-testid="review-name">{{ passenger.first_name }} {{ passenger.last_name }}</dd>
+      <dd data-testid="review-email">{{ passenger.contact_email }}</dd>
+      <dd data-testid="review-reason">{{ passenger.claim_reason_code }}</dd>
+    </dl>
+  </div>
+
+  <form method="post" action="/{{ lang }}/claim/step3/submit" data-testid="claim-submit-form">
+    <div class="actions">
+      <a class="button secondary" data-testid="claim-step3-back" href="/{{ lang }}/claim/step2">{{ L.back }}</a>
+      <button type="submit" class="button primary" data-testid="claim-submit-button">{{ L.submit }}</button>
+    </div>
+  </form>
+</article>
+{% endblock %}

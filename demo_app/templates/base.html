@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ L.app_title }}</title>
+  <link rel="stylesheet" href="/static/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <header class="app-header" data-testid="app-header">
+      <div class="brand" data-testid="app-brand">{{ L.app_title }}</div>
+      <nav class="lang-switch" aria-label="{{ L.lang_switch }}">
+        <span>{{ L.lang_switch }}:</span>
+        {% for code in languages %}
+          <a data-testid="lang-link-{{ code }}" href="/{{ code }}/{{ route_path }}">{{ code|upper }}</a>{% if not loop.last %} |{% endif %}
+        {% endfor %}
+      </nav>
+    </header>
+
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

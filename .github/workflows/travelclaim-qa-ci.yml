@@ -16,7 +16,7 @@ permissions:
 jobs:
   lint:
     name: ruff
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright 1.49 has no WebKit system deps for 26.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +30,7 @@ jobs:
   tests:
     name: pytest (${{ matrix.browser }})
     needs: lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04  # pinned: Playwright 1.49 has no WebKit system deps for 26.04
     timeout-minutes: 25
     strategy:
       fail-fast: false

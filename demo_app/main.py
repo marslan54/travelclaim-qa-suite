@@ -1,5 +1,5 @@
 """
-Minimal TravelClaim Compensation portal — serves multilingual UI + mock REST API.
+Minimal TravelClaim Compensation portal: serves multilingual UI + mock REST API.
 
 Run locally: uvicorn demo_app.main:app --host 127.0.0.1 --port 8765 --reload
 """
@@ -10,8 +10,8 @@ import json
 import os
 import secrets
 from datetime import date
-from urllib.parse import quote
 from typing import Annotated, Any
+from urllib.parse import quote
 
 from fastapi import FastAPI, Form, HTTPException, Query, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -324,7 +324,9 @@ async def claim_submit(request: Request, lang: str) -> RedirectResponse:
 
 
 @app.get("/{lang}/claim/confirmation", response_class=HTMLResponse, response_model=None)
-async def claim_confirmation(request: Request, lang: str, ref: Annotated[str, Query(alias="ref")]) -> HTMLResponse | RedirectResponse:
+async def claim_confirmation(
+    request: Request, lang: str, ref: Annotated[str, Query(alias="ref")]
+) -> HTMLResponse | RedirectResponse:
     lang = _ensure_lang(lang)
     redir = _require_login(request, lang)
     if redir:
@@ -376,7 +378,9 @@ async def submit_travel_claim(
     if simulate_http_status == 500:
         raise HTTPException(status_code=500, detail="simulated server error")
     if simulate_http_status == 400:
-        raise HTTPException(status_code=400, detail={"code": "VALIDATION_FAILED", "message": "Simulated validation failure"})
+        raise HTTPException(
+            status_code=400, detail={"code": "VALIDATION_FAILED", "message": "Simulated validation failure"}
+        )
 
     claim_id = f"TC-{secrets.token_hex(4).upper()}"
     reference = payload.segment.booking_reference or secrets.token_hex(5).upper()

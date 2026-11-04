@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import re
 
-from playwright.sync_api import Page, expect
+from playwright.sync_api import expect
 
-from pages.base_page import BasePage
+from travelclaim_qa.pages.base_page import BasePage
 
 
 class LoginPage(BasePage):

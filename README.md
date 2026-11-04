@@ -4,10 +4,11 @@
 
 Portfolio-style test automation for a **multi-language, multi-step travel compensation** flow (EU261-style claim reasons, corporate login, bilingual operations). The repo includes:
 
-- A **local demo web app** (`demo_app/`) you run with Uvicorn—no external SaaS accounts.
-- **Playwright + pytest** UI suites with **Page Object Models**, **markers**, and **Allure-ready** hooks.
+- A **local demo web app** (`demo_app/`) you run with Uvicorn, with no external SaaS accounts.
+- An installable framework package (`travelclaim_qa/`): **Page Object Models**, synthetic test data and a **pytest plugin** with shared fixtures, versioned and installable with pip.
+- **Playwright + pytest** UI suites with **markers**, a saved login reused across tests, and screenshots and traces on failure.
 - An **REST contract layer** (`tests/api/`) using **requests** and **Playwright’s `request` API**.
-- **GitHub Actions** to run tests per browser (**Chromium, Firefox, WebKit**) and upload Allure artifacts.
+- **GitHub Actions** on every pull request and push to `main`: ruff lint, then tests in parallel per browser (**Chromium, Firefox, WebKit**), with Allure, JUnit and failure artifacts.
 
 ---
 
@@ -50,7 +51,8 @@ pip install --upgrade pip
 From the repository root (the folder that contains `requirements.txt`, `demo_app/`, `tests/`):
 
 ```powershell
-pip install -r requirements.txt
+pip install -r requirements.txt   # installs the package (editable) with pinned tooling
+pre-commit install                # optional: ruff lint and format on every commit
 ```
 
 ### 5. Install Playwright browser binaries
@@ -77,18 +79,19 @@ For CI-style system deps on Linux only, `--with-deps` is used (see `.github/work
 
 The demo app exposes:
 
-- Multilingual routes: **`/{locale}/login`**, **`/{locale}/claim/step{1–3}`**, **`/{locale}/claim/confirmation`** with `locale ∈ { en, de, fr }`.
+- Multilingual routes: **`/{locale}/login`**, **`/{locale}/claim/step1`** to **`step3`**, **`/{locale}/claim/confirmation`** with `locale ∈ { en, de, fr }`.
 - REST: **`GET /health`**, **`GET /api/v1/config/locales`**, **`POST /api/v1/travel-claims`** (`201 Created` on success).
 
 ---
 
 ## How it works
 
-1. **`demo_app/main.py`** hosts the portal and API. Sessions store wizard progress and login state server-side—realistic for “resume claim” QA.
-2. **Tests** assume the portal is reachable at **`http://127.0.0.1:8765`** (see **`pytest.ini`** `base_url`, or override with **`TRAVELCLAIM_BASE_URL`** in `conftest.py`).
-3. **`conftest.py`** runs **`verify_demo_portal`** once per session against **`GET /health`**. If the server is down, pytest exits with a clear instruction instead of long Playwright timeouts.
-4. **`pages/`** centralize selectors (`data-testid`) and navigation; **`utils/test_data.py`** feeds realistic payloads.
-5. **Playwright** drives browsers; **`pytest-base-url`** supplies the `base_url` fixture unless you redefine it—this project’s `base_url` prefers **`TRAVELCLAIM_BASE_URL`** when set.
+1. **`demo_app/main.py`** hosts the portal and API. Login state and wizard progress live in a signed session cookie, which makes “resume claim” flows testable.
+2. **Tests** assume the portal is reachable at **`http://127.0.0.1:8765`** (see `base_url` in **`pyproject.toml`**, or override with **`TRAVELCLAIM_BASE_URL`**).
+3. The package's pytest plugin (**`travelclaim_qa/plugin.py`**) runs **`verify_portal`** once per session against **`GET /health`**. If the server is down, pytest exits with a clear instruction instead of long Playwright timeouts.
+4. **`travelclaim_qa/pages/`** centralize selectors (`data-testid`) and navigation; **`travelclaim_qa/data.py`** feeds synthetic payloads.
+5. Authenticated tests don't log in through the UI each time: the plugin logs in once per session (once per worker in parallel runs), saves the session, and **`conftest.py`** starts those tests from it.
+6. **Playwright** drives browsers; **`pytest-base-url`** supplies the `base_url` fixture, and **`TRAVELCLAIM_BASE_URL`** overrides it when set.
 
 ```mermaid
 flowchart LR
@@ -108,7 +111,7 @@ flowchart LR
 
 You need **two terminals** (or one terminal for the server and one for tests).
 
-### Terminal A — start the demo portal
+### Terminal A: start the demo portal
 
 ```powershell
 cd <path-to-repo>
@@ -123,13 +126,15 @@ Wait until you see **“Uvicorn running on http://127.0.0.1:8765”**.
 - Email: `claims.analyst@travelclaim.example`
 - Password: `Eu261_R3gress!`
 
-### Terminal B — run the full test pack
+### Terminal B: run the full test pack
 
 ```powershell
 cd <path-to-repo>
 .\.venv\Scripts\Activate.ps1
-python -m pytest tests --browser chromium -v
+python -m pytest -n auto --browser chromium
 ```
+
+`-n auto` runs tests in parallel across CPU cores (pytest-xdist). Failed UI tests leave a screenshot and a Playwright trace in `test-results/`; open a trace with `playwright show-trace <file>.zip`.
 
 **Expected:** all tests **pass** (currently **21** UI + API cases for one browser run).
 
@@ -166,7 +171,7 @@ python -m pytest -m smoke --browser chromium
 | Variable | Purpose |
 | --- | --- |
 | **`TRAVELCLAIM_BASE_URL`** | Base URL for the demo app if not using `http://127.0.0.1:8765` |
-| **`TC_DEMO_EMAIL`** / **`TC_DEMO_PASSWORD`** | Credentials the demo app expects for login |
+| **`TC_DEMO_EMAIL`** / **`TC_DEMO_PASSWORD`** | Credentials the demo app expects for login (demo-only defaults, never real accounts) |
 
 ---
 
@@ -185,18 +190,21 @@ python -m pytest -m smoke --browser chromium
 
 ```
 demo_app/            # FastAPI multilingual UI + mocked REST submissions
-fixtures/            # Shared auth/test user helpers
-pages/               # Page Object Models (login, wizard steps, confirmation)
+travelclaim_qa/      # The installable framework package
+  pages/             # Page Object Models (login, wizard steps, confirmation)
+  auth.py            # Demo credentials (env-overridable)
+  data.py            # Synthetic test data factories
+  plugin.py          # pytest plugin: base URL override, health gate, saved login
 reports/allure/      # Git keeps .gitkeep; Allure results written at runtime
 tests/
   api/               # REST contract + fault injection
   regression/        # Deeper journeys
   smoke/             # Fast checks
   ui/                # Functional, i18n, edge cases
-utils/               # Test data factories
-conftest.py          # Health gate + authenticated UI fixtures
-pytest.ini           # discovery, markers, base_url default
-requirements.txt     # pinned Python tooling
+conftest.py          # Starts authenticated tests from the saved login
+pyproject.toml       # Package metadata, pytest settings, ruff rules
+requirements.txt     # Pinned versions for CI and local runs
+.pre-commit-config.yaml  # ruff + basic hygiene hooks
 .github/workflows/   # CI: matrix browsers, Allure + JUnit artifacts
 ```
 
@@ -204,7 +212,15 @@ requirements.txt     # pinned Python tooling
 
 ## CI/CD
 
-`.github/workflows/travelclaim-qa-ci.yml` runs on **push to `main`**, installs deps and one Playwright browser per matrix job, starts **`uvicorn`**, runs **`pytest --alluredir=reports/allure/<browser>`**, and uploads Allure shards and JUnit XML.
+`.github/workflows/travelclaim-qa-ci.yml` runs on **every pull request** and **push to `main`**. A ruff job lints and checks formatting first; then one job per browser installs the package, starts **`uvicorn`**, runs **`pytest -n auto`** in parallel and uploads Allure results and JUnit XML, plus screenshots and traces when a test fails. With branch protection on `main`, a red run blocks the merge.
+
+## Using the framework in another project
+
+```bash
+pip install "travelclaim-qa @ git+https://github.com/marslan54/travelclaim-qa-suite@v1.0.0"
+```
+
+The page objects and data factories import from `travelclaim_qa`, and the plugin's fixtures (`verify_portal`, `auth_storage_state`) register with pytest automatically. Releases are versioned in `travelclaim_qa/__init__.py` and tagged.
 
 ---
 
@@ -214,18 +230,17 @@ requirements.txt     # pinned Python tooling
 | --- | --- |
 | **Playwright + pytest** | Industry-standard stack; solid waiting, traces, multi-browser. |
 | **Page objects + `data-testid`** | Stable selectors without coupling to cosmetics. |
-| **FastAPI demo** | Lightweight, typed API, multilingual templates—realistic QA target. |
+| **FastAPI demo** | Lightweight, typed API, multilingual templates, a realistic QA target. |
 | **Allure** | Rich stakeholder reports from the same pytest run. |
 
 ---
 
 ## Last verification run
 
-Automated verification on this codebase: **`python -m pytest tests --browser chromium -v`** with the demo portal up — **21 passed**.
+CI runs the full suite on Chromium, Firefox and WebKit for every pull request; see the Actions tab for the latest results.
 
 ---
 
 ## Optional next steps for reviewers
 
-- Attach **Playwright traces** (`PWDEBUG=1` / trace-on-failure hooks).
 - Wire **HTML Allure Trend** storage in CI after the first nightly runs.

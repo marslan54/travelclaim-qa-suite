@@ -50,11 +50,11 @@ Total Test Cases        → 21+ cases  (1 browser run)
 Encapsulates UI elements and interactions, decoupling tests from selectors:
 
 ```
-pages/
+travelclaim_qa/pages/
 ├── login_page.py          # Authentication flow
-├── wizard_pages.py        # Multi-step claim wizard
+├── claim_form_pages.py    # Multi-step claim wizard
 ├── confirmation_page.py   # Final claim submission
-└── base_page.py          # Shared navigation & utilities
+└── base_page.py           # Shared navigation & utilities
 ```
 
 **Benefit:** Selector changes require updates in one place; test logic remains stable.
@@ -74,18 +74,18 @@ def authenticated_user(page, base_url):
 ### 3. **Configuration Management**
 Environment-aware setup with sensible defaults:
 
-- `TRAVELCLAIM_BASE_URL` — Portal address (default: `http://127.0.0.1:8765`)
-- `TC_DEMO_EMAIL` / `TC_DEMO_PASSWORD` — Demo credentials
+- `TRAVELCLAIM_BASE_URL`: Portal address (default: `http://127.0.0.1:8765`)
+- `TC_DEMO_EMAIL` / `TC_DEMO_PASSWORD`: Demo credentials
 - Browser selection via `--browser` CLI flag
 
 ### 4. **Health-Gate Testing**
 Pre-flight checks ensure the demo portal is reachable before running full suites:
 
 ```python
-def verify_demo_portal(base_url):
-    """Fail fast if portal is unreachable"""
-    response = requests.get(f"{base_url}/health")
-    assert response.status_code == 200
+@pytest.fixture(scope="session", autouse=True)
+def verify_portal(base_url):
+    """Fail fast with a clear message when the portal is not running."""
+    requests.get(f"{base_url}/health", timeout=5).raise_for_status()
 ```
 
 **Benefit:** Clear error messages instead of long Playwright timeouts.
@@ -133,7 +133,7 @@ test_data = {
 2. **Artifact Management:** 
    - Allure results uploaded for trend analysis
    - JUnit XML for GitHub PR integration
-3. **Automated Triggers:** Runs on every push to `main`
+3. **Automated Triggers:** Runs on every pull request and push to `main`, after a ruff lint job
 4. **System Dependencies:** Linux-specific Playwright setup with `--with-deps`
 
 ### 📊 Professional Reporting
@@ -200,12 +200,12 @@ python -m playwright install chromium firefox webkit
 
 ### Running Tests
 
-**Terminal 1 — Start Demo Portal:**
+**Terminal 1: Start Demo Portal:**
 ```powershell
 python -m uvicorn demo_app.main:app --host 127.0.0.1 --port 8765
 ```
 
-**Terminal 2 — Run Full Suite:**
+**Terminal 2: Run Full Suite:**
 ```powershell
 # Single browser
 python -m pytest tests --browser chromium -v
@@ -240,25 +240,19 @@ travelclaim-qa-suite/
 │   ├── ui/                      # Functional UI tests (13 cases)
 │   ├── regression/              # Full journey tests (3 cases)
 │   ├── api/                     # REST contract tests (2 cases)
-│   └── conftest.py              # Shared fixtures, health-gate
 │
-├── pages/                       # Page Object Models
-│   ├── base_page.py             # Shared base class
-│   ├── login_page.py            # Login flow
-│   ├── wizard_pages.py          # Claim wizard steps
-│   └── confirmation_page.py     # Confirmation screen
+├── travelclaim_qa/              # Installable framework package
+│   ├── pages/                   # Page Object Models
+│   ├── auth.py                  # Demo credentials (env-overridable)
+│   ├── data.py                  # Synthetic payload factories
+│   └── plugin.py                # pytest plugin: health gate, saved login
 │
-├── fixtures/                    # Test data & helpers
-│   ├── auth.py                  # Authentication fixtures
-│   └── test_users.py            # User profiles
-│
-├── utils/                       # Utilities
-│   └── test_data.py             # Payload factories
+├── conftest.py                  # Starts authenticated tests from the saved login
 │
 ├── reports/allure/              # Allure results storage
 ├── .github/workflows/           # CI/CD automation
-├── requirements.txt             # Python dependencies
-├── pytest.ini                   # Test configuration
+├── pyproject.toml               # Package, pytest and ruff configuration
+├── requirements.txt             # Pinned dependencies
 └── README.md                    # Usage documentation
 ```
 
@@ -268,16 +262,16 @@ travelclaim-qa-suite/
 
 ### Best Practices Implemented
 
-✅ **DRY Principle** — Page Objects eliminate selector duplication  
-✅ **Single Responsibility** — Each test focuses on one behavior  
-✅ **Fixture Reuse** — Centralized auth & setup logic  
-✅ **Clear Naming** — Test names describe what they validate  
-✅ **Data Separation** — Test data isolated from test logic  
-✅ **Explicit Waits** — Playwright's smart waiting (no arbitrary sleeps)  
-✅ **Cross-Browser** — Matrix testing ensures compatibility  
-✅ **Accessible Selectors** — `data-testid` attributes (immune to CSS changes)  
-✅ **CI/CD Ready** — Automated runs with artifact generation  
-✅ **Documented Code** — Clear setup instructions and troubleshooting  
+✅ **DRY Principle**: Page Objects eliminate selector duplication  
+✅ **Single Responsibility**: Each test focuses on one behavior  
+✅ **Fixture Reuse**: Centralized auth & setup logic  
+✅ **Clear Naming**: Test names describe what they validate  
+✅ **Data Separation**: Test data isolated from test logic  
+✅ **Explicit Waits**: Playwright's smart waiting (no arbitrary sleeps)  
+✅ **Cross-Browser**: Matrix testing ensures compatibility  
+✅ **Accessible Selectors**: `data-testid` attributes (immune to CSS changes)  
+✅ **CI/CD Ready**: Automated runs with artifact generation  
+✅ **Documented Code**: Clear setup instructions and troubleshooting  
 
 ### Troubleshooting Built In
 
@@ -296,13 +290,13 @@ Common issues handled gracefully:
 
 ### Scenarios This Validates
 
-1. **EU261 Compliance Testing** — Multi-step claim flows with regulatory validation
-2. **Multilingual SaaS** — Same logic across different language variants
-3. **Form Validation** — Required fields, formats, error messaging
-4. **API Contracts** — Backend consistency regardless of frontend
-5. **Cross-Browser Support** — Desktop platform compatibility
-6. **Session Management** — Login persistence and claim resumption
-7. **Fault Injection** — Graceful error handling (4xx/5xx responses)
+1. **EU261 Compliance Testing**: Multi-step claim flows with regulatory validation
+2. **Multilingual SaaS**: Same logic across different language variants
+3. **Form Validation**: Required fields, formats, error messaging
+4. **API Contracts**: Backend consistency regardless of frontend
+5. **Cross-Browser Support**: Desktop platform compatibility
+6. **Session Management**: Login persistence and claim resumption
+7. **Fault Injection**: Graceful error handling (4xx/5xx responses)
 
 ### Why This Portfolio Stands Out
 
@@ -345,12 +339,12 @@ Total               21+     Multi-browser, all locales
 ## Skills Demonstrated
 
 ### Technical Expertise
-- **Test Automation Architecture** — Page Objects, fixtures, layered test design
-- **Python** — pytest, FastAPI, requests, Playwright integration
-- **Cross-Browser Testing** — Playwright matrix execution
-- **API Testing** — REST contract validation, schema checks, error scenarios
-- **CI/CD** — GitHub Actions workflows, artifact management
-- **Multilingual Testing** — Locale-specific validation, i18n edge cases
+- **Test Automation Architecture**: Page Objects, fixtures, layered test design
+- **Python**: pytest, FastAPI, requests, Playwright integration
+- **Cross-Browser Testing**: Playwright matrix execution
+- **API Testing**: REST contract validation, schema checks, error scenarios
+- **CI/CD**: GitHub Actions workflows, artifact management
+- **Multilingual Testing**: Locale-specific validation, i18n edge cases
 
 ### QA Principles
 - Test-driven design with clear acceptance criteria
@@ -372,14 +366,14 @@ Total               21+     Multi-browser, all locales
 
 Potential expansions demonstrating advanced skills:
 
-1. **Performance Testing** — Add Lighthouse/WebPageTest integration
-2. **Visual Regression** — Screenshot comparison with Percy/Chromatic
-3. **Load Testing** — JMeter/Locust for API stress testing
-4. **Mobile Testing** — Playwright's mobile device emulation
-5. **Security Testing** — OWASP ZAP integration for vulnerability scanning
-6. **Test Data Management** — Database fixtures for realistic scenarios
-7. **Machine Learning** — Anomaly detection for test results
-8. **Advanced Reporting** — Custom dashboard with historical trends
+1. **Performance Testing**: Add Lighthouse/WebPageTest integration
+2. **Visual Regression**: Screenshot comparison with Percy/Chromatic
+3. **Load Testing**: JMeter/Locust for API stress testing
+4. **Mobile Testing**: Playwright's mobile device emulation
+5. **Security Testing**: OWASP ZAP integration for vulnerability scanning
+6. **Test Data Management**: Database fixtures for realistic scenarios
+7. **Machine Learning**: Anomaly detection for test results
+8. **Advanced Reporting**: Custom dashboard with historical trends
 
 ---
 
@@ -388,10 +382,10 @@ Potential expansions demonstrating advanced skills:
 **Repository:** [github.com/marslan54/travelclaim-qa-suite](https://github.com/marslan54/travelclaim-qa-suite)
 
 **Quick Links:**
-- 📖 [Full README](README.md) — Installation and usage guide
-- 🔧 [Tech Stack](requirements.txt) — Pinned dependencies
-- 🚀 [CI/CD Config](.github/workflows/travelclaim-qa-ci.yml) — Automation setup
-- 📊 [Allure Reports](reports/allure/) — Test execution trends
+- 📖 [Full README](README.md): Installation and usage guide
+- 🔧 [Tech Stack](requirements.txt): Pinned dependencies
+- 🚀 [CI/CD Config](.github/workflows/travelclaim-qa-ci.yml): Automation setup
+- 📊 [Allure Reports](reports/allure/): Test execution trends
 
 ---
 

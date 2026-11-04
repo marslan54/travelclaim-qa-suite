@@ -8,8 +8,8 @@ import allure
 import pytest
 from playwright.sync_api import Page, expect
 
-from pages.claim_form_pages import ClaimFlightDetailsPage, ClaimPassengerPage, TravelClaimWizard
-from utils.test_data import valid_flight_segment
+from travelclaim_qa.data import valid_flight_segment
+from travelclaim_qa.pages.claim_form_pages import ClaimFlightDetailsPage, ClaimPassengerPage, TravelClaimWizard
 
 
 @pytest.mark.regression
@@ -53,7 +53,7 @@ def test_step2_requires_passenger_profile(logged_in_claim_step1: Page, base_url:
 @pytest.mark.regression
 @allure.title("Invalid credentials do not advance the session")
 def test_invalid_login_shows_banner(page: Page, base_url: str) -> None:
-    from pages.login_page import LoginPage
+    from travelclaim_qa.pages.login_page import LoginPage
 
     login = LoginPage(page, base_url, locale="en")
     login.open()

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from playwright.sync_api import Page, expect
 
-from pages.base_page import BasePage
+from travelclaim_qa.pages.base_page import BasePage
 
 
 class ClaimFlightDetailsPage(BasePage):
-    """Step 1 — itinerary capture."""
+    """Step 1: itinerary capture."""
 
     def open(self, locale: str | None = None) -> None:
         loc = locale or self.locale
@@ -46,7 +46,7 @@ class ClaimFlightDetailsPage(BasePage):
 
 
 class ClaimPassengerPage(BasePage):
-    """Step 2 — claimant identity & regulatory reason."""
+    """Step 2: claimant identity & regulatory reason."""
 
     def fill_passenger(
         self,
@@ -73,7 +73,7 @@ class ClaimPassengerPage(BasePage):
 
 
 class ClaimReviewPage(BasePage):
-    """Step 3 — read-only recap before submission."""
+    """Step 3: read-only recap before submission."""
 
     def expect_review_contains(self, text: str) -> None:
         expect(self.page.get_by_text(text, exact=False)).to_be_visible()

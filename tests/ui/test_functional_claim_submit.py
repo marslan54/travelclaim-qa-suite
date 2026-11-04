@@ -8,9 +8,9 @@ import allure
 import pytest
 from playwright.sync_api import Page, expect
 
-from pages.claim_form_pages import TravelClaimWizard
-from pages.confirmation_page import ConfirmationPage
-from utils.test_data import valid_flight_segment, valid_passenger
+from travelclaim_qa.data import valid_flight_segment, valid_passenger
+from travelclaim_qa.pages.claim_form_pages import TravelClaimWizard
+from travelclaim_qa.pages.confirmation_page import ConfirmationPage
 
 
 @pytest.mark.regression

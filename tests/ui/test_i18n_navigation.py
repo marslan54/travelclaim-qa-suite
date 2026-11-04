@@ -7,10 +7,10 @@ import pytest
 import requests
 from playwright.sync_api import Page, expect
 
-from fixtures.auth import portal_credentials
-from pages.claim_form_pages import TravelClaimWizard
-from pages.login_page import LoginPage
-from utils.test_data import iso_date_days_ago
+from travelclaim_qa.auth import portal_credentials
+from travelclaim_qa.data import iso_date_days_ago
+from travelclaim_qa.pages.claim_form_pages import TravelClaimWizard
+from travelclaim_qa.pages.login_page import LoginPage
 
 
 @pytest.mark.regression

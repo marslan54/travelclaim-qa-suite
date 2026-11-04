@@ -1,14 +1,18 @@
-# TravelClaim QA Suite — Python deps
+# Pinned versions for CI and local runs. The package itself declares compatible ranges in pyproject.toml.
+-e .[dev,demo]
 playwright==1.49.1
 pytest==8.3.4
 pytest-playwright==0.6.2
 pytest-base-url==2.1.0
+pytest-xdist==3.6.1
 requests==2.32.3
+allure-pytest==2.13.5
+ruff==0.8.4
+pre-commit==4.0.1
 fastapi==0.115.6
 uvicorn[standard]==0.34.0
 pydantic==2.10.4
 email-validator==2.2.0
 jinja2==3.1.4
 python-multipart==0.0.20
-allure-pytest==2.13.5
 itsdangerous==2.1.2

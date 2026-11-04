@@ -7,8 +7,8 @@ import pytest
 import requests
 from playwright.sync_api import Page, expect
 
-from pages.claim_form_pages import ClaimFlightDetailsPage
-from pages.login_page import LoginPage
+from travelclaim_qa.pages.claim_form_pages import ClaimFlightDetailsPage
+from travelclaim_qa.pages.login_page import LoginPage
 
 
 @pytest.mark.smoke

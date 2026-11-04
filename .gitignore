@@ -14,3 +14,8 @@ test-results/
 
 # Cursor / local terminal transcripts (never commit)
 terminals/
+
+# Packaging
+*.egg-info/
+build/
+dist/
